@@ -15,8 +15,9 @@ test: ## Run xUnit tests
 push: ## Create bookmark and push (usage: make push b=my-feature)
 ifndef b
 	jj bookmark set main -r @ && jj git push --bookmark main
-endif
+else
 	jj bookmark create $(b) -r @ && jj git push --bookmark $(b)
+endif
 
 sync: ## Fetch remote and rebase onto main
 	jj git fetch && jj rebase -d main
