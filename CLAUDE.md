@@ -8,6 +8,7 @@ Turn-based roguelike inspired by Path of Achra. Built with Godot 4 + C#.
 
 - **Engine:** Godot 4 (latest stable)
 - **Language:** C#
+- **VCS:** jj (Jujutsu) co-located with Git
 - **Save system:** SQLite via Microsoft.Data.Sqlite
 - **Art:** Aseprite -> PNG sprite exports
 - **Testing:** xUnit for core logic, Godot scene tests for integration
@@ -56,4 +57,10 @@ godot --path src/
 
 # Export (example)
 godot --path src/ --export-release "Linux" builds/linux/PathOfChaz
+
+# VCS (prefer jj over raw git)
+jj log              # view history
+jj new              # start new change
+jj commit -m "msg"  # commit current change
+jj bookmark track main --remote=gh  # track remote bookmark
 ```

@@ -34,3 +34,6 @@ builds/
 # Aseprite working files (commit PNGs, not source)
 *.ase
 *.aseprite
+
+# Jujutsu
+.jj/
