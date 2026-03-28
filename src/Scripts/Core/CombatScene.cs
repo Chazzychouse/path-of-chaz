@@ -7,15 +7,15 @@ namespace PathOfChaz.Core;
 
 public partial class CombatScene : Control
 {
-    [Export] public Label PlayerNameLabel { get; set; } = null!;
-    [Export] public Label PlayerHealthLabel { get; set; } = null!;
-    [Export] public Label EnemyNameLabel { get; set; } = null!;
-    [Export] public Label EnemyHealthLabel { get; set; } = null!;
-    [Export] public CombatLogPanel LogPanel { get; set; } = null!;
-    [Export] public Button AttackButton { get; set; } = null!;
-    [Export] public Button StandButton { get; set; } = null!;
-    [Export] public Button PrayButton { get; set; } = null!;
-    [Export] public Label ResultLabel { get; set; } = null!;
+    private Label _playerNameLabel = null!;
+    private Label _playerHealthLabel = null!;
+    private Label _enemyNameLabel = null!;
+    private Label _enemyHealthLabel = null!;
+    private CombatLogPanel _logPanel = null!;
+    private Button _attackButton = null!;
+    private Button _standButton = null!;
+    private Button _prayButton = null!;
+    private Label _resultLabel = null!;
 
     private TurnSystem _turnSystem = null!;
     private CombatLog _combatLog = null!;
@@ -26,6 +26,16 @@ public partial class CombatScene : Control
 
     public override void _Ready()
     {
+        _playerNameLabel = GetNode<Label>("MarginContainer/VBox/TopBar/PlayerInfo/PlayerName");
+        _playerHealthLabel = GetNode<Label>("MarginContainer/VBox/TopBar/PlayerInfo/PlayerHealth");
+        _enemyNameLabel = GetNode<Label>("MarginContainer/VBox/TopBar/EnemyInfo/EnemyName");
+        _enemyHealthLabel = GetNode<Label>("MarginContainer/VBox/TopBar/EnemyInfo/EnemyHealth");
+        _logPanel = GetNode<CombatLogPanel>("MarginContainer/VBox/CombatLogPanel");
+        _attackButton = GetNode<Button>("MarginContainer/VBox/ActionBar/AttackButton");
+        _standButton = GetNode<Button>("MarginContainer/VBox/ActionBar/StandButton");
+        _prayButton = GetNode<Button>("MarginContainer/VBox/ActionBar/PrayButton");
+        _resultLabel = GetNode<Label>("MarginContainer/VBox/ResultLabel");
+
         var playerData = GD.Load<CharacterData>("res://Resources/Characters/Chaz.tres");
         var enemyData = GD.Load<CharacterData>("res://Resources/Characters/Goblin.tres");
 
@@ -40,11 +50,11 @@ public partial class CombatScene : Control
         _turnSystem = new TurnSystem(_player, _enemy, _combatLog);
 
         UpdateLabels();
-        ResultLabel.Visible = false;
+        _resultLabel.Visible = false;
 
-        AttackButton.Pressed += () => SubmitPlayerAction(CombatAction.Attack);
-        StandButton.Pressed += () => SubmitPlayerAction(CombatAction.Stand);
-        PrayButton.Pressed += () => SubmitPlayerAction(CombatAction.Pray);
+        _attackButton.Pressed += () => SubmitPlayerAction(CombatAction.Attack);
+        _standButton.Pressed += () => SubmitPlayerAction(CombatAction.Stand);
+        _prayButton.Pressed += () => SubmitPlayerAction(CombatAction.Pray);
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -79,7 +89,7 @@ public partial class CombatScene : Control
 
         var result = _turnSystem.SubmitAction(action);
         UpdateLabels();
-        LogPanel.UpdateFromLog(_combatLog);
+        _logPanel.UpdateFromLog(_combatLog);
 
         // Brief pause for visual pacing
         await ToSignal(GetTree().CreateTimer(0.3), SceneTreeTimer.SignalName.Timeout);
@@ -87,13 +97,13 @@ public partial class CombatScene : Control
         switch (result)
         {
             case TurnResult.EnemyDead:
-                ResultLabel.Text = "Victory!";
-                ResultLabel.Visible = true;
+                _resultLabel.Text = "Victory!";
+                _resultLabel.Visible = true;
                 _combatOver = true;
                 break;
             case TurnResult.PlayerDead:
-                ResultLabel.Text = "Defeat!";
-                ResultLabel.Visible = true;
+                _resultLabel.Text = "Defeat!";
+                _resultLabel.Visible = true;
                 _combatOver = true;
                 break;
             case TurnResult.Invalid:
@@ -109,16 +119,16 @@ public partial class CombatScene : Control
 
     private void UpdateLabels()
     {
-        PlayerNameLabel.Text = _player.Name;
-        PlayerHealthLabel.Text = $"HP: {_player.Health} / {_player.MaxHealth}";
-        EnemyNameLabel.Text = _enemy.Name;
-        EnemyHealthLabel.Text = $"HP: {_enemy.Health} / {_enemy.MaxHealth}";
+        _playerNameLabel.Text = _player.Name;
+        _playerHealthLabel.Text = $"HP: {_player.Health} / {_player.MaxHealth}";
+        _enemyNameLabel.Text = _enemy.Name;
+        _enemyHealthLabel.Text = $"HP: {_enemy.Health} / {_enemy.MaxHealth}";
     }
 
     private void SetButtonsEnabled(bool enabled)
     {
-        AttackButton.Disabled = !enabled;
-        StandButton.Disabled = !enabled;
-        PrayButton.Disabled = !enabled;
+        _attackButton.Disabled = !enabled;
+        _standButton.Disabled = !enabled;
+        _prayButton.Disabled = !enabled;
     }
 }

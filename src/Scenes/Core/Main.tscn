@@ -11,15 +11,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
-PlayerNameLabel = NodePath("MarginContainer/VBox/TopBar/PlayerInfo/PlayerName")
-PlayerHealthLabel = NodePath("MarginContainer/VBox/TopBar/PlayerInfo/PlayerHealth")
-EnemyNameLabel = NodePath("MarginContainer/VBox/TopBar/EnemyInfo/EnemyName")
-EnemyHealthLabel = NodePath("MarginContainer/VBox/TopBar/EnemyInfo/EnemyHealth")
-LogPanel = NodePath("MarginContainer/VBox/CombatLogPanel")
-AttackButton = NodePath("MarginContainer/VBox/ActionBar/AttackButton")
-StandButton = NodePath("MarginContainer/VBox/ActionBar/StandButton")
-PrayButton = NodePath("MarginContainer/VBox/ActionBar/PrayButton")
-ResultLabel = NodePath("MarginContainer/VBox/ResultLabel")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
