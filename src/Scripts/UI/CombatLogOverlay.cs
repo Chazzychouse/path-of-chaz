@@ -32,12 +32,6 @@ public partial class CombatLogOverlay : PanelContainer
             _logText.Text += formatted;
 
         _lastEntryCount = log.Entries.Count;
-        CallDeferred(nameof(ScrollToBottom));
-    }
-
-    private void ScrollToBottom()
-    {
-        _logText.ScrollToLine(_logText.GetLineCount() - 1);
     }
 
     public static string FormatEntries(IReadOnlyList<CombatLogEntry> entries)
