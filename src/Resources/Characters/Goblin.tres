@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Characters/CharacterData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+CharacterName = "Goblin"
+BaseHealth = 10
+Attack = 5
+Defense = 2
+Accuracy = 70
