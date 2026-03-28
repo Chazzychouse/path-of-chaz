@@ -11,3 +11,12 @@ run: ## Launch Godot with the project
 
 test: ## Run xUnit tests
 	dotnet test
+
+push: ## Create bookmark and push (usage: make push b=my-feature)
+ifndef b
+	$(error Usage: make push b=<bookmark-name>)
+endif
+	jj bookmark create $(b) -r @ && jj git push --bookmark $(b)
+
+sync: ## Fetch remote and rebase onto main
+	jj git fetch && jj rebase -d main
