@@ -13,7 +13,7 @@ public class RunDatabaseTests
             PlayerHealth = 15,
             EnemyHealth = 7,
             TurnCount = 3,
-            RngSeed = 42L,
+            RngSeed = 42,
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -21,7 +21,7 @@ public class RunDatabaseTests
         Assert.Equal(15, state.PlayerHealth);
         Assert.Equal(7, state.EnemyHealth);
         Assert.Equal(3, state.TurnCount);
-        Assert.Equal(42L, state.RngSeed);
+        Assert.Equal(42, state.RngSeed);
         Assert.Equal(now, state.CreatedAt);
         Assert.Equal(now, state.UpdatedAt);
     }
@@ -63,7 +63,7 @@ public class RunDatabaseTests
                 PlayerHealth = 15,
                 EnemyHealth = 7,
                 TurnCount = 3,
-                RngSeed = 42L,
+                RngSeed = 42,
                 CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             };
@@ -75,7 +75,7 @@ public class RunDatabaseTests
             Assert.Equal(15, loaded.PlayerHealth);
             Assert.Equal(7, loaded.EnemyHealth);
             Assert.Equal(3, loaded.TurnCount);
-            Assert.Equal(42L, loaded.RngSeed);
+            Assert.Equal(42, loaded.RngSeed);
             Assert.Equal(saved.CreatedAt, loaded.CreatedAt);
             Assert.Equal(saved.UpdatedAt, loaded.UpdatedAt);
         }
@@ -118,7 +118,7 @@ public class RunDatabaseTests
                 PlayerHealth = 20,
                 EnemyHealth = 10,
                 TurnCount = 1,
-                RngSeed = 99L,
+                RngSeed = 99,
                 CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             };
@@ -154,7 +154,7 @@ public class RunDatabaseTests
                 PlayerHealth = 20,
                 EnemyHealth = 10,
                 TurnCount = 1,
-                RngSeed = 1L,
+                RngSeed = 1,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
             };

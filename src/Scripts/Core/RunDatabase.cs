@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Globalization;
 using Microsoft.Data.Sqlite;
 
 namespace PathOfChaz.Core;
@@ -97,9 +98,9 @@ public class RunDatabase : IDisposable
             PlayerHealth = reader.GetInt32(0),
             EnemyHealth = reader.GetInt32(1),
             TurnCount = reader.GetInt32(2),
-            RngSeed = reader.GetInt64(3),
-            CreatedAt = DateTime.Parse(reader.GetString(4)).ToUniversalTime(),
-            UpdatedAt = DateTime.Parse(reader.GetString(5)).ToUniversalTime(),
+            RngSeed = reader.GetInt32(3),
+            CreatedAt = DateTime.Parse(reader.GetString(4), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
+            UpdatedAt = DateTime.Parse(reader.GetString(5), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
         };
     }
 

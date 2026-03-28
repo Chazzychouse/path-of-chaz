@@ -26,7 +26,7 @@ public partial class CombatScene : Control
     private bool _turnInProgress;
 
     private RunDatabase _runDb = null!;
-    private long _rngSeed;
+    private int _rngSeed;
     private DateTime _runCreatedAt;
 
     public override void _Ready()
@@ -61,12 +61,12 @@ public partial class CombatScene : Control
             _enemy = new Combatant(
                 enemyData.CharacterName, enemyData.BaseHealth, savedRun.EnemyHealth,
                 enemyData.Attack, enemyData.Defense, enemyData.Accuracy);
-            _turnSystem = new TurnSystem(_player, _enemy, _combatLog, new Random((int)_rngSeed));
+            _turnSystem = new TurnSystem(_player, _enemy, _combatLog, new Random(_rngSeed));
             _turnSystem.TurnNumber = savedRun.TurnCount;
         }
         else
         {
-            _rngSeed = Random.Shared.NextInt64();
+            _rngSeed = Random.Shared.Next();
             _runCreatedAt = DateTime.UtcNow;
             _player = new Combatant(
                 playerData.CharacterName, playerData.BaseHealth,
@@ -74,7 +74,7 @@ public partial class CombatScene : Control
             _enemy = new Combatant(
                 enemyData.CharacterName, enemyData.BaseHealth,
                 enemyData.Attack, enemyData.Defense, enemyData.Accuracy);
-            _turnSystem = new TurnSystem(_player, _enemy, _combatLog, new Random((int)_rngSeed));
+            _turnSystem = new TurnSystem(_player, _enemy, _combatLog, new Random(_rngSeed));
         }
 
         UpdateLabels();
