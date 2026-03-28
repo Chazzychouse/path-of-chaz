@@ -26,7 +26,7 @@ public class TurnSystem
     private readonly Random _rng;
 
     public TurnState State { get; private set; } = TurnState.WaitingForInput;
-    public int TurnNumber { get; private set; } = 1;
+    public int TurnNumber { get; set; } = 1;
 
     public TurnSystem(Combatant player, Combatant enemy, CombatLog log, Random rng = null)
     {

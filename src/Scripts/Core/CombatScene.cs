@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using PathOfChaz.Characters;
 using PathOfChaz.Core;
@@ -24,6 +25,10 @@ public partial class CombatScene : Control
     private bool _combatOver;
     private bool _turnInProgress;
 
+    private RunDatabase _runDb = null!;
+    private long _rngSeed;
+    private DateTime _runCreatedAt;
+
     public override void _Ready()
     {
         _playerNameLabel = GetNode<Label>("MarginContainer/VBox/TopBar/PlayerInfo/PlayerName");
@@ -39,15 +44,38 @@ public partial class CombatScene : Control
         var playerData = GD.Load<CharacterData>("res://Resources/Characters/Chaz.tres");
         var enemyData = GD.Load<CharacterData>("res://Resources/Characters/Goblin.tres");
 
-        _player = new Combatant(
-            playerData.CharacterName, playerData.BaseHealth,
-            playerData.Attack, playerData.Defense, playerData.Accuracy);
-        _enemy = new Combatant(
-            enemyData.CharacterName, enemyData.BaseHealth,
-            enemyData.Attack, enemyData.Defense, enemyData.Accuracy);
+        var dbPath = ProjectSettings.GlobalizePath("user://run.db");
+        _runDb = new RunDatabase(dbPath);
+        _runDb.Initialize();
 
         _combatLog = new CombatLog();
-        _turnSystem = new TurnSystem(_player, _enemy, _combatLog);
+        var savedRun = _runDb.Load();
+
+        if (savedRun != null)
+        {
+            _rngSeed = savedRun.RngSeed;
+            _runCreatedAt = savedRun.CreatedAt;
+            _player = new Combatant(
+                playerData.CharacterName, playerData.BaseHealth, savedRun.PlayerHealth,
+                playerData.Attack, playerData.Defense, playerData.Accuracy);
+            _enemy = new Combatant(
+                enemyData.CharacterName, enemyData.BaseHealth, savedRun.EnemyHealth,
+                enemyData.Attack, enemyData.Defense, enemyData.Accuracy);
+            _turnSystem = new TurnSystem(_player, _enemy, _combatLog, new Random((int)_rngSeed));
+            _turnSystem.TurnNumber = savedRun.TurnCount;
+        }
+        else
+        {
+            _rngSeed = Random.Shared.NextInt64();
+            _runCreatedAt = DateTime.UtcNow;
+            _player = new Combatant(
+                playerData.CharacterName, playerData.BaseHealth,
+                playerData.Attack, playerData.Defense, playerData.Accuracy);
+            _enemy = new Combatant(
+                enemyData.CharacterName, enemyData.BaseHealth,
+                enemyData.Attack, enemyData.Defense, enemyData.Accuracy);
+            _turnSystem = new TurnSystem(_player, _enemy, _combatLog, new Random((int)_rngSeed));
+        }
 
         UpdateLabels();
         _resultLabel.Visible = false;
@@ -100,21 +128,37 @@ public partial class CombatScene : Control
                 _resultLabel.Text = "Victory!";
                 _resultLabel.Visible = true;
                 _combatOver = true;
+                _runDb.Delete();
                 break;
             case TurnResult.PlayerDead:
                 _resultLabel.Text = "Defeat!";
                 _resultLabel.Visible = true;
                 _combatOver = true;
+                _runDb.Delete();
                 break;
             case TurnResult.Invalid:
                 GD.PrintErr("CombatScene: TurnResult.Invalid — possible double-submit");
                 break;
             default:
+                _runDb.Save(new RunState
+                {
+                    PlayerHealth = _player.Health,
+                    EnemyHealth = _enemy.Health,
+                    TurnCount = _turnSystem.TurnNumber,
+                    RngSeed = _rngSeed,
+                    CreatedAt = _runCreatedAt,
+                    UpdatedAt = DateTime.UtcNow,
+                });
                 SetButtonsEnabled(true);
                 break;
         }
 
         _turnInProgress = false;
+    }
+
+    public override void _ExitTree()
+    {
+        _runDb.Dispose();
     }
 
     private void UpdateLabels()
