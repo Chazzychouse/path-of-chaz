@@ -51,4 +51,17 @@ public class CombatantTests
         c.TakeDamage(10);
         Assert.False(c.IsAlive);
     }
+
+    [Fact]
+    public void Constructor_WithCurrentHealth_SetsHealthCorrectly()
+    {
+        var c = new Combatant("Chaz", 20, 12, 8, 3, 100);
+
+        Assert.Equal(20, c.MaxHealth);
+        Assert.Equal(12, c.Health);
+        Assert.Equal("Chaz", c.Name);
+        Assert.Equal(8, c.Attack);
+        Assert.Equal(3, c.Defense);
+        Assert.Equal(100, c.Accuracy);
+    }
 }

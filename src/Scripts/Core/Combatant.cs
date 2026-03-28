@@ -23,6 +23,16 @@ public class Combatant
         Accuracy = accuracy;
     }
 
+    public Combatant(string name, int maxHealth, int currentHealth, int attack, int defense, int accuracy)
+    {
+        Name = name;
+        MaxHealth = maxHealth;
+        Health = currentHealth;
+        Attack = attack;
+        Defense = defense;
+        Accuracy = accuracy;
+    }
+
     public void TakeDamage(int amount)
     {
         Health = Math.Max(0, Health - amount);
