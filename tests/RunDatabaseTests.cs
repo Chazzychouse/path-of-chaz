@@ -48,4 +48,124 @@ public class RunDatabaseTests
             File.Delete(path);
         }
     }
+
+    [Fact]
+    public void Save_ThenLoad_RoundTripsAllFields()
+    {
+        var path = Path.GetTempFileName();
+        try
+        {
+            using var db = new RunDatabase(path);
+            db.Initialize();
+
+            var saved = new RunState
+            {
+                PlayerHealth = 15,
+                EnemyHealth = 7,
+                TurnCount = 3,
+                RngSeed = 42L,
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            };
+
+            db.Save(saved);
+            var loaded = db.Load();
+
+            Assert.NotNull(loaded);
+            Assert.Equal(15, loaded.PlayerHealth);
+            Assert.Equal(7, loaded.EnemyHealth);
+            Assert.Equal(3, loaded.TurnCount);
+            Assert.Equal(42L, loaded.RngSeed);
+            Assert.Equal(saved.CreatedAt, loaded.CreatedAt);
+            Assert.Equal(saved.UpdatedAt, loaded.UpdatedAt);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void Load_ReturnsNull_WhenNoRunExists()
+    {
+        var path = Path.GetTempFileName();
+        try
+        {
+            using var db = new RunDatabase(path);
+            db.Initialize();
+
+            var loaded = db.Load();
+
+            Assert.Null(loaded);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void Save_Twice_UpsertsInsteadOfDuplicating()
+    {
+        var path = Path.GetTempFileName();
+        try
+        {
+            using var db = new RunDatabase(path);
+            db.Initialize();
+
+            var state = new RunState
+            {
+                PlayerHealth = 20,
+                EnemyHealth = 10,
+                TurnCount = 1,
+                RngSeed = 99L,
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            };
+            db.Save(state);
+
+            state.PlayerHealth = 12;
+            state.TurnCount = 5;
+            state.UpdatedAt = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+            db.Save(state);
+
+            var loaded = db.Load();
+            Assert.NotNull(loaded);
+            Assert.Equal(12, loaded.PlayerHealth);
+            Assert.Equal(5, loaded.TurnCount);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void Delete_RemovesActiveRun()
+    {
+        var path = Path.GetTempFileName();
+        try
+        {
+            using var db = new RunDatabase(path);
+            db.Initialize();
+
+            var state = new RunState
+            {
+                PlayerHealth = 20,
+                EnemyHealth = 10,
+                TurnCount = 1,
+                RngSeed = 1L,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
+            db.Save(state);
+            db.Delete();
+
+            Assert.Null(db.Load());
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
 }

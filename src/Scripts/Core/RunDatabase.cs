@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using Microsoft.Data.Sqlite;
 
@@ -54,6 +55,59 @@ public class RunDatabase : IDisposable
         createRunState.ExecuteNonQuery();
 
         transaction.Commit();
+    }
+
+    public void Save(RunState state)
+    {
+        using var transaction = _connection.BeginTransaction();
+
+        using var delete = _connection.CreateCommand();
+        delete.Transaction = transaction;
+        delete.CommandText = "DELETE FROM run_state";
+        delete.ExecuteNonQuery();
+
+        using var insert = _connection.CreateCommand();
+        insert.Transaction = transaction;
+        insert.CommandText = """
+            INSERT INTO run_state (player_health, enemy_health, turn_count, rng_seed, created_at, updated_at)
+            VALUES (@ph, @eh, @tc, @rs, @ca, @ua)
+            """;
+        insert.Parameters.AddWithValue("@ph", state.PlayerHealth);
+        insert.Parameters.AddWithValue("@eh", state.EnemyHealth);
+        insert.Parameters.AddWithValue("@tc", state.TurnCount);
+        insert.Parameters.AddWithValue("@rs", state.RngSeed);
+        insert.Parameters.AddWithValue("@ca", state.CreatedAt.ToString("o"));
+        insert.Parameters.AddWithValue("@ua", state.UpdatedAt.ToString("o"));
+        insert.ExecuteNonQuery();
+
+        transaction.Commit();
+    }
+
+    public RunState? Load()
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT player_health, enemy_health, turn_count, rng_seed, created_at, updated_at FROM run_state LIMIT 1";
+        using var reader = cmd.ExecuteReader();
+
+        if (!reader.Read())
+            return null;
+
+        return new RunState
+        {
+            PlayerHealth = reader.GetInt32(0),
+            EnemyHealth = reader.GetInt32(1),
+            TurnCount = reader.GetInt32(2),
+            RngSeed = reader.GetInt64(3),
+            CreatedAt = DateTime.Parse(reader.GetString(4)).ToUniversalTime(),
+            UpdatedAt = DateTime.Parse(reader.GetString(5)).ToUniversalTime(),
+        };
+    }
+
+    public void Delete()
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "DELETE FROM run_state";
+        cmd.ExecuteNonQuery();
     }
 
     public void Dispose()
