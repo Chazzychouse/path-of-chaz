@@ -8,14 +8,10 @@ namespace PathOfChaz.Core;
 
 public partial class CombatScene : Control
 {
-    private Label _playerNameLabel = null!;
-    private Label _playerHealthLabel = null!;
-    private Label _enemyNameLabel = null!;
-    private Label _enemyHealthLabel = null!;
-    private CombatLogPanel _logPanel = null!;
-    private Button _attackButton = null!;
-    private Button _standButton = null!;
-    private Button _prayButton = null!;
+    private Label _healthLabel = null!;
+    private Label _identityLabel = null!;
+    private Label _enemyLabel = null!;
+    private CombatLogOverlay _logOverlay = null!;
     private Label _resultLabel = null!;
 
     private TurnSystem _turnSystem = null!;
@@ -31,15 +27,11 @@ public partial class CombatScene : Control
 
     public override void _Ready()
     {
-        _playerNameLabel = GetNode<Label>("MarginContainer/VBox/TopBar/PlayerInfo/PlayerName");
-        _playerHealthLabel = GetNode<Label>("MarginContainer/VBox/TopBar/PlayerInfo/PlayerHealth");
-        _enemyNameLabel = GetNode<Label>("MarginContainer/VBox/TopBar/EnemyInfo/EnemyName");
-        _enemyHealthLabel = GetNode<Label>("MarginContainer/VBox/TopBar/EnemyInfo/EnemyHealth");
-        _logPanel = GetNode<CombatLogPanel>("MarginContainer/VBox/CombatLogPanel");
-        _attackButton = GetNode<Button>("MarginContainer/VBox/ActionBar/AttackButton");
-        _standButton = GetNode<Button>("MarginContainer/VBox/ActionBar/StandButton");
-        _prayButton = GetNode<Button>("MarginContainer/VBox/ActionBar/PrayButton");
-        _resultLabel = GetNode<Label>("MarginContainer/VBox/ResultLabel");
+        _healthLabel = GetNode<Label>("VBox/TopStatusBar/HealthLabel");
+        _identityLabel = GetNode<Label>("VBox/TopStatusBar/IdentityLabel");
+        _enemyLabel = GetNode<Label>("VBox/TopStatusBar/EnemyLabel");
+        _logOverlay = GetNode<CombatLogOverlay>("CombatLogOverlay/LogPanel");
+        _resultLabel = GetNode<Label>("ResultOverlay/ResultLabel");
 
         var playerData = GD.Load<CharacterData>("res://Resources/Characters/Chaz.tres");
         var enemyData = GD.Load<CharacterData>("res://Resources/Characters/Goblin.tres");
@@ -78,11 +70,6 @@ public partial class CombatScene : Control
         }
 
         UpdateLabels();
-        _resultLabel.Visible = false;
-
-        _attackButton.Pressed += () => SubmitPlayerAction(CombatAction.Attack);
-        _standButton.Pressed += () => SubmitPlayerAction(CombatAction.Stand);
-        _prayButton.Pressed += () => SubmitPlayerAction(CombatAction.Pray);
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -113,13 +100,11 @@ public partial class CombatScene : Control
             return;
 
         _turnInProgress = true;
-        SetButtonsEnabled(false);
 
         var result = _turnSystem.SubmitAction(action);
         UpdateLabels();
-        _logPanel.UpdateFromLog(_combatLog);
+        _logOverlay.UpdateFromLog(_combatLog);
 
-        // Brief pause for visual pacing
         await ToSignal(GetTree().CreateTimer(0.3), SceneTreeTimer.SignalName.Timeout);
 
         switch (result)
@@ -149,7 +134,6 @@ public partial class CombatScene : Control
                     CreatedAt = _runCreatedAt,
                     UpdatedAt = DateTime.UtcNow,
                 });
-                SetButtonsEnabled(true);
                 break;
         }
 
@@ -163,16 +147,9 @@ public partial class CombatScene : Control
 
     private void UpdateLabels()
     {
-        _playerNameLabel.Text = _player.Name;
-        _playerHealthLabel.Text = $"HP: {_player.Health} / {_player.MaxHealth}";
-        _enemyNameLabel.Text = _enemy.Name;
-        _enemyHealthLabel.Text = $"HP: {_enemy.Health} / {_enemy.MaxHealth}";
-    }
-
-    private void SetButtonsEnabled(bool enabled)
-    {
-        _attackButton.Disabled = !enabled;
-        _standButton.Disabled = !enabled;
-        _prayButton.Disabled = !enabled;
+        var pct = _player.MaxHealth > 0 ? _player.Health * 100 / _player.MaxHealth : 0;
+        _healthLabel.Text = $"{_player.Health} /{_player.MaxHealth} {pct}%";
+        _identityLabel.Text = _player.Name;
+        _enemyLabel.Text = $"{_enemy.Name} {_enemy.Health}/{_enemy.MaxHealth}";
     }
 }
