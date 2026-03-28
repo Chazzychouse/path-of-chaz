@@ -1,0 +1,36 @@
+# Godot
+.godot/
+*.import
+export_presets.cfg
+
+# .NET / C#
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.csproj.old
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Builds
+builds/
+
+# SQLite save files (don't commit player data)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Aseprite working files (commit PNGs, not source)
+*.ase
+*.aseprite
