@@ -22,6 +22,7 @@ public partial class CombatScene : Control
     private Combatant _player = null!;
     private Combatant _enemy = null!;
     private bool _combatOver;
+    private bool _turnInProgress;
 
     public override void _Ready()
     {
@@ -48,7 +49,7 @@ public partial class CombatScene : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_combatOver || !@event.IsPressed())
+        if (_combatOver || _turnInProgress || !@event.IsPressed())
             return;
 
         if (@event.IsAction("action_attack"))
@@ -70,9 +71,10 @@ public partial class CombatScene : Control
 
     private async void SubmitPlayerAction(CombatAction action)
     {
-        if (_combatOver)
+        if (_combatOver || _turnInProgress)
             return;
 
+        _turnInProgress = true;
         SetButtonsEnabled(false);
 
         var result = _turnSystem.SubmitAction(action);
@@ -94,10 +96,15 @@ public partial class CombatScene : Control
                 ResultLabel.Visible = true;
                 _combatOver = true;
                 break;
+            case TurnResult.Invalid:
+                GD.PrintErr("CombatScene: TurnResult.Invalid — possible double-submit");
+                break;
             default:
                 SetButtonsEnabled(true);
                 break;
         }
+
+        _turnInProgress = false;
     }
 
     private void UpdateLabels()
